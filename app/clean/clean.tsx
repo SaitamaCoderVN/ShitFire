@@ -26,20 +26,18 @@ import { abi } from "@/components/abi";
 import { erc20Abi } from "@/components/erc20-abi";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Check } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   CHAINID,
-  TOKEN_ADDRESS,
+  TOKEN_ADDRESS_BAOBAB,
+  TOKEN_ADDRESS_CYPRESS,
+
   CONTRACT_ADDRESS_BAOBAB,
   CONTRACT_ADDRESS_CYPRESS,
-  CONTRACT_ADDRESS_OPAL,
-  CONTRACT_ADDRESS_QUARTZ,
-  CONTRACT_ADDRESS_UNIQUE,
+  
   BLOCK_EXPLORER_BAOBAB,
   BLOCK_EXPLORER_CYPRESS,
-  BLOCK_EXPLORER_OPAL,
-  BLOCK_EXPLORER_QUARTZ,
-  BLOCK_EXPLORER_UNIQUE,
+  
 } from "../../components/contract";
 import cleanImage from "@/assets/shit.gif";
 
@@ -57,28 +55,13 @@ export default function CleanForm() {
   switch (chainId) {
     case CHAINID.BAOBAB:
       contractAddress = CONTRACT_ADDRESS_BAOBAB;
-      tokenAddress = TOKEN_ADDRESS;
+      tokenAddress = TOKEN_ADDRESS_BAOBAB;
       blockexplorer = BLOCK_EXPLORER_BAOBAB;
       break;
     case CHAINID.CYPRESS:
       contractAddress = CONTRACT_ADDRESS_CYPRESS;
-      tokenAddress = TOKEN_ADDRESS;
+      tokenAddress = TOKEN_ADDRESS_CYPRESS;
       blockexplorer = BLOCK_EXPLORER_CYPRESS;
-      break;
-    case CHAINID.UNIQUE:
-      contractAddress = CONTRACT_ADDRESS_UNIQUE;
-      tokenAddress = TOKEN_ADDRESS;
-      blockexplorer = BLOCK_EXPLORER_UNIQUE;
-      break;
-    case CHAINID.QUARTZ:
-      contractAddress = CONTRACT_ADDRESS_QUARTZ;
-      tokenAddress = TOKEN_ADDRESS;
-      blockexplorer = BLOCK_EXPLORER_QUARTZ;
-      break;
-    case CHAINID.OPAL:
-      contractAddress = CONTRACT_ADDRESS_OPAL;
-      tokenAddress = TOKEN_ADDRESS;
-      blockexplorer = BLOCK_EXPLORER_OPAL;
       break;
     default:
       throw new Error("Network not supported");
@@ -95,6 +78,8 @@ export default function CleanForm() {
     resolver: zodResolver(formSchema),
   });
 
+  const [isApproved, setIsApproved] = useState(false);
+
   useEffect(() => {
     if (cleanError) {
       toast({
@@ -107,33 +92,41 @@ export default function CleanForm() {
 
   async function onSubmit() {
     try {
-      const amount = BigInt("1000000000000000000000");
-      await cleanWriteContract({
-        abi: erc20Abi,
-        address: tokenAddress,
-        functionName: "approve",
-        args: [contractAddress, amount],
-      });
-
-      await cleanWriteContract({
-        abi: abi,
-        address: contractAddress,
-        functionName: "airdropTokens",
-        args: [],
-      });
-
-      toast({
-        variant: "default",
-        className: "bg-white",
-        title: "Transaction successful",
-        description: "Clean operation completed successfully!",
-      });
+      if (!isApproved) {
+        const amount = BigInt("1000000000000000000000");
+        await cleanWriteContract({
+          abi: erc20Abi,
+          address: tokenAddress,
+          functionName: "approve",
+          args: [contractAddress, amount],
+        });
+        setIsApproved(true);
+        toast({
+          variant: "default",
+          className: "bg-white",
+          title: "Aprove success",
+          description: "You can now clean!",
+        });
+      } else {
+        await cleanWriteContract({
+          abi: abi,
+          address: contractAddress,
+          functionName: "airdropTokens",
+          args: [],
+        });
+        toast({
+          variant: "default",
+          className: "bg-white",
+          title: "Clean success",
+          description: "Clean operation completed successfully!",
+        });
+      }
     } catch (error) {
       console.error("Error:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "An error occurred during the clean operation",
+        description: "An error occurred during execution",
       });
     }
   }
@@ -172,7 +165,7 @@ export default function CleanForm() {
               zIndex: 2,
               transition: 'all 0.3s ease',
             }}
-             type="submit">Clean</Button>
+             type="submit">{isApproved ? "Clean" : "Approve"}</Button>
           )}
         </form>
       </Form>

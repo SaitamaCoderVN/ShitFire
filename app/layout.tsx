@@ -5,6 +5,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/header";
+import ImageDropEffect from '@/components/ImageDropEffect';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -19,7 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className} >
+      <body className={inter.className}>
+        <ImageDropEffect />
         <Providers>
           <Header />
           {children}
