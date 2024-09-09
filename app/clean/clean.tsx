@@ -2,248 +2,218 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
 import { z } from "zod";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { motion } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import {
   type BaseError,
   useWaitForTransactionReceipt,
   useWriteContract,
   useAccount,
+  useChainId,
 } from "wagmi";
-import { parseEther } from "viem";
+import { abi } from "@/components/abi";
+import { erc20Abi } from "@/components/erc20-abi";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Check } from "lucide-react";
-import { useChainId } from "wagmi";
-import { erc20Abi } from "@/components/erc20-abi";
-import { Label } from "@/components/ui/label";
+import { useEffect } from "react";
 import {
-  BLOCK_EXPLORER_BAOBAB,
-  BLOCK_EXPLORER_CYPRESS,
-  BLOCK_EXPLORER_OPAL,
-  BLOCK_EXPLORER_QUARTZ,
-  BLOCK_EXPLORER_UNIQUE,
   CHAINID,
+  TOKEN_ADDRESS,
   CONTRACT_ADDRESS_BAOBAB,
   CONTRACT_ADDRESS_CYPRESS,
   CONTRACT_ADDRESS_OPAL,
   CONTRACT_ADDRESS_QUARTZ,
   CONTRACT_ADDRESS_UNIQUE,
+  BLOCK_EXPLORER_BAOBAB,
+  BLOCK_EXPLORER_CYPRESS,
+  BLOCK_EXPLORER_OPAL,
+  BLOCK_EXPLORER_QUARTZ,
+  BLOCK_EXPLORER_UNIQUE,
 } from "../../components/contract";
-import Stepbox from "@/components/stepbox";
+import cleanImage from "@/assets/shit.gif";
 
-const setAllowanceFormSchema = z.object({
-  amount: z.string(),
-});
+const formSchema = z.object({});
 
-function Airdrop() {
+export default function CleanForm() {
   const { toast } = useToast();
   const account = useAccount();
-  let chainId = useChainId();
+  const chainId = useChainId();
 
-  let contractAddress: any;
+  let contractAddress: `0x${string}`;
+  let tokenAddress: `0x${string}`;
   let blockexplorer: string;
-  
-  // ... (giữ nguyên phần switch cho contractAddress và blockexplorer)
 
-  const [erc20TokenAddress, setErc20TokenAddress] = useState<string>("");
-  const [erc20TokenSymbol, setErc20TokenSymbol] = useState<string>("");
+  switch (chainId) {
+    case CHAINID.BAOBAB:
+      contractAddress = CONTRACT_ADDRESS_BAOBAB;
+      tokenAddress = TOKEN_ADDRESS;
+      blockexplorer = BLOCK_EXPLORER_BAOBAB;
+      break;
+    case CHAINID.CYPRESS:
+      contractAddress = CONTRACT_ADDRESS_CYPRESS;
+      tokenAddress = TOKEN_ADDRESS;
+      blockexplorer = BLOCK_EXPLORER_CYPRESS;
+      break;
+    case CHAINID.UNIQUE:
+      contractAddress = CONTRACT_ADDRESS_UNIQUE;
+      tokenAddress = TOKEN_ADDRESS;
+      blockexplorer = BLOCK_EXPLORER_UNIQUE;
+      break;
+    case CHAINID.QUARTZ:
+      contractAddress = CONTRACT_ADDRESS_QUARTZ;
+      tokenAddress = TOKEN_ADDRESS;
+      blockexplorer = BLOCK_EXPLORER_QUARTZ;
+      break;
+    case CHAINID.OPAL:
+      contractAddress = CONTRACT_ADDRESS_OPAL;
+      tokenAddress = TOKEN_ADDRESS;
+      blockexplorer = BLOCK_EXPLORER_OPAL;
+      break;
+    default:
+      throw new Error("Network not supported");
+  }
+
   const {
-    data: approveHash,
-    error: approveError,
-    isPending: approveIsPending,
-    writeContract: approveWriteContract,
+    data: cleanHash,
+    error: cleanError,
+    isPending: cleanIsPending,
+    writeContract: cleanWriteContract,
   } = useWriteContract();
 
-  const setAllowanceForm = useForm<z.infer<typeof setAllowanceFormSchema>>({
-    resolver: zodResolver(setAllowanceFormSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
   });
 
   useEffect(() => {
-    if (approveError) {
+    if (cleanError) {
       toast({
         variant: "destructive",
-        title: "Transaction reverted",
-        description: `${(approveError as BaseError).shortMessage || approveError.message}`,
+        title: "Transaction failed",
+        description: `${(cleanError as BaseError).shortMessage || cleanError.message}`,
       });
     }
-  }, [approveError, toast]);
+  }, [cleanError, toast]);
 
-  function onApprove(values: z.infer<typeof setAllowanceFormSchema>) {
-    const amount: bigint = parseEther(values.amount.toString());
-    approveWriteContract({
-      abi: erc20Abi,
-      address: erc20TokenAddress as `0x${string}`,
-      functionName: "approve",
-      args: [contractAddress, amount],
-    });
+  async function onSubmit() {
+    try {
+      const amount = BigInt("1000000000000000000000");
+      await cleanWriteContract({
+        abi: erc20Abi,
+        address: tokenAddress,
+        functionName: "approve",
+        args: [contractAddress, amount],
+      });
+
+      await cleanWriteContract({
+        abi: abi,
+        address: contractAddress,
+        functionName: "airdropTokens",
+        args: [],
+      });
+
+      toast({
+        variant: "default",
+        className: "bg-white",
+        title: "Transaction successful",
+        description: "Clean operation completed successfully!",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An error occurred during the clean operation",
+      });
+    }
   }
 
   function truncateAddress(address: string) {
     return `${address.slice(0, 6)}...${address.slice(-6)}`;
   }
 
-  const { isLoading: isApproveConfirming, isSuccess: isApproveConfirmed } =
+  const { isLoading: isCleanConfirming, isSuccess: isCleanConfirmed } =
     useWaitForTransactionReceipt({
-      hash: approveHash,
+      hash: cleanHash,
     });
 
   return (
-    <div className="bg-gradient-bg pb-20 w-full row-start-2">
-      <div className="h-full text-[#101010] pt-20">
-        <div className="flex flex-row items-center justify-center">
-          <Card className="bg-dark-bg text-white w-full border-0 shadow-lg lg:max-w-3xl">
-            <CardHeader>
-              <CardTitle className="text-4xl text-">
-                Approve ERC20 Token For Contract
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-row gap-5 items-center">
-                  <Stepbox>Step 1</Stepbox>
-                  <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                    Enter token address
-                  </h3>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <Label htmlFor="tokenAddress">ERC20 Token address</Label>
-                  <Input
-                    required
-                    name="tokenAddress"
-                    type="text"
-                    className="bg-secondary-bg text-dark-text border-none focus:outline-none placeholder-dark-text"
-                    placeholder="Paste address of the token here"
-                    value={erc20TokenAddress}
-                    onChange={(e) => setErc20TokenAddress(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-4 mt-8">
-                <div className="flex flex-row gap-5 items-center">
-                  <Stepbox>Step 2</Stepbox>
-                  <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                    Set approval amount
-                  </h3>
-                </div>
-                <div className="">
-                  <Form {...setAllowanceForm}>
-                    <form
-                      onSubmit={setAllowanceForm.handleSubmit(onApprove)}
-                      className="space-y-8"
-                    >
-                      <FormField
-                        control={setAllowanceForm.control}
-                        name="amount"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Approval amount</FormLabel>
-                            <FormControl>
-                              <Input
-                                required
-                                type="text"
-                                className="bg-secondary-bg text-dark-text border-none focus:outline-none placeholder-dark-text"
-                                placeholder="Enter the amount to be approved"
-                                {...field}
-                                value={field.value ?? ""}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              This allows the contract to transfer your tokens on your behalf.
-                            </FormDescription>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {approveIsPending ? (
-                        <Button disabled>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Please wait
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="default"
-                          size="default"
-                          className="bg-primary text-white rounded-xl"
-                          type="submit"
-                        >
-                          Approve
-                        </Button>
-                      )}
-                    </form>
-                  </Form>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col gap-2 items-start h-fit">
-              <div className="flex flex-row gap-5 items-center">
-                <Stepbox>Step 3</Stepbox>
-                <h3 className="scroll-m-20 text-xl font-semibold tracking-tight">
-                  Check approval status
-                </h3>
-              </div>
-              <div className="flex flex-col gap-4">
-                {approveHash ? (
-                  <div className="flex flex-row gap-2">
-                    Hash:
-                    <a
-                      target="_blank"
-                      className="text-blue-500 underline"
-                      href={`${blockexplorer + approveHash}`}
-                    >
-                      {truncateAddress(approveHash)}
-                    </a>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex flex-row gap-2">
-                      Hash: no transaction hash until after submission
-                    </div>
-                    <Badge className="w-fit" variant="outline">
-                      No approval yet
-                    </Badge>
-                  </>
-                )}
-                {isApproveConfirming && (
-                  <Badge className="w-fit" variant="secondary">
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Waiting for confirmation...
-                  </Badge>
-                )}
-                {isApproveConfirmed && (
-                  <Badge className="flex flex-row items-center w-fit bg-green-500 cursor-pointer">
-                    <Check className="mr-2 h-4 w-4" />
-                    Approval confirmed!
-                  </Badge>
-                )}
-              </div>
-            </CardFooter>
-          </Card>
-        </div>
+    <>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-8 w-full text-white"
+        >
+          {cleanIsPending ? (
+            <Button disabled>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing
+            </Button>
+          ) : (
+            <Button 
+            className={`mt-10 text-sm px-20 py-5 font-semibold box`} 
+            style={{ 
+              width: '6px', 
+              height: '6px',
+              border: '2px solid #000',
+              borderRadius: '8px',
+              position: 'relative',
+              overflow: 'hidden',
+              zIndex: 2,
+              transition: 'all 0.3s ease',
+            }}
+             type="submit">Clean</Button>
+          )}
+        </form>
+      </Form>
+      <div className="bg-secondary-bg p-6 mt-10 inline-block w-full lg:w-[70%] rounded-xl">
+        <h3 className="scroll-m-20 text-lg font-semibold tracking-tight">
+          Transaction Status
+        </h3>
+        {cleanHash ? (
+          <div className="flex flex-row gap-2">
+            Hash:
+            <a
+              target="_blank"
+              className="text-blue-500 underline"
+              href={`${blockexplorer}${cleanHash}`}
+            >
+              {truncateAddress(cleanHash)}
+            </a>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-row gap-2">
+              Hash: No transaction hash
+            </div>
+            <Badge variant="outline" className="border-[#2B233C]">
+              No transaction
+            </Badge>
+          </>
+        )}
+        {isCleanConfirming && (
+          <Badge variant="secondary">
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Pending confirmation...
+          </Badge>
+        )}
+        {isCleanConfirmed && (
+          <Badge className="flex flex-row items-center w-[40%] bg-green-500 cursor-pointer">
+            <Check className="mr-2 h-4 w-4" />
+            Transaction confirmed!
+          </Badge>
+        )}
       </div>
-    </div>
+    </>
   );
 }
-
-export default dynamic(() => Promise.resolve(Airdrop), {
-  ssr: false,
-});
