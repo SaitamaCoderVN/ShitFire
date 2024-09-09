@@ -9,7 +9,9 @@ import { px } from "framer-motion";
 import ShitCoffee from '@/assets/funny-shit.gif'
 import FallingImages from './falling-images';
 
-function AirdropPage({ buttonSize = "lg" as const }) {
+function AirdropPage() {
+  const buttonSize = "lg"; // Hoặc bạn có thể sử dụng state nếu cần thay đổi
+
   return (
     <div className=" mt-5 w-full flex flex-col justify-between items-center relative">
       {/* <FallingImages /> */}
