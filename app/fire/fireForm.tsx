@@ -23,7 +23,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { abi } from "../../components/abi";
+import { nftAbi } from "../../components/nft-abi";
 import { parseEther } from "viem";
 import { formatEther } from "viem";
 import { Badge } from "@/components/ui/badge";
@@ -37,8 +37,11 @@ import {
   BLOCK_EXPLORER_CYPRESS,
   
   CHAINID,
-  CONTRACT_ADDRESS_BAOBAB,
-  CONTRACT_ADDRESS_CYPRESS,
+  CONTRACT_NFT_ADDRESS_BAOBAB,
+  CONTRACT_NFT_ADDRESS_CYPRESS,
+
+  CONTRACT_STAKE_ADDRESS_BAOBAB,
+  CONTRACT_STAKE_ADDRESS_CYPRESS
 } from "../../components/contract";
 
 const formSchema = z.object({
@@ -58,11 +61,11 @@ export default function MintForm() {
   let contractAddress: any;
   switch (chainId) {
     case CHAINID.BAOBAB:
-      contractAddress = CONTRACT_ADDRESS_BAOBAB;
+      contractAddress = CONTRACT_NFT_ADDRESS_BAOBAB;
       break;
 
     case CHAINID.CYPRESS:
-      contractAddress = CONTRACT_ADDRESS_CYPRESS;
+      contractAddress = CONTRACT_NFT_ADDRESS_CYPRESS;
       break;
 
     default:
@@ -92,10 +95,10 @@ export default function MintForm() {
     // Convert 'to' address to appropriate format
     try {
       await writeContract({
-        abi,
+        abi: nftAbi,
         address: contractAddress,
-        functionName: "safeMint",
-        args: [`0x${values.to.slice(2)}`, values.uri.toString()], // Pass the 'to' and 'uri' values as arguments
+        functionName: "shootingShitNFT",
+        args: [`0x${values.to.slice(2)}`], // Pass the 'to' and 'uri' values as arguments
       });
       toast({
         variant: "default",

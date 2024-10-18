@@ -21,8 +21,10 @@ import {
   useWriteContract,
   useAccount,
   useChainId,
+  useReadContract
 } from "wagmi";
-import { abi } from "@/components/abi";
+import { readContract } from '@wagmi/core';
+import { nftAbi } from "@/components/nft-abi";
 import { erc20Abi } from "@/components/erc20-abi";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Check } from "lucide-react";
@@ -32,14 +34,15 @@ import {
   TOKEN_ADDRESS_BAOBAB,
   TOKEN_ADDRESS_CYPRESS,
 
-  CONTRACT_ADDRESS_BAOBAB,
-  CONTRACT_ADDRESS_CYPRESS,
+  CONTRACT_NFT_ADDRESS_BAOBAB,
+  CONTRACT_NFT_ADDRESS_CYPRESS,
   
   BLOCK_EXPLORER_BAOBAB,
   BLOCK_EXPLORER_CYPRESS,
   
 } from "../../components/contract";
 import cleanImage from "@/assets/shit.gif";
+import { config } from "../config";
 
 const formSchema = z.object({});
 
@@ -54,12 +57,12 @@ export default function CleanForm() {
 
   switch (chainId) {
     case CHAINID.BAOBAB:
-      contractAddress = CONTRACT_ADDRESS_BAOBAB;
+      contractAddress = CONTRACT_NFT_ADDRESS_BAOBAB;
       tokenAddress = TOKEN_ADDRESS_BAOBAB;
       blockexplorer = BLOCK_EXPLORER_BAOBAB;
       break;
     case CHAINID.CYPRESS:
-      contractAddress = CONTRACT_ADDRESS_CYPRESS;
+      contractAddress = CONTRACT_NFT_ADDRESS_CYPRESS;
       tokenAddress = TOKEN_ADDRESS_CYPRESS;
       blockexplorer = BLOCK_EXPLORER_CYPRESS;
       break;
@@ -93,12 +96,19 @@ export default function CleanForm() {
   async function onSubmit() {
     try {
       if (!isApproved) {
-        const amount = BigInt("1000000000000000000000");
+        console.log(account.address);
+        const totalOwnerShitNFT = await readContract(config, {
+          abi: nftAbi,
+          address: contractAddress,
+          functionName: 'getShitNFTs',
+          args: [account.address!],
+        });
+        const amount = totalOwnerShitNFT * BigInt(100e18);
         await cleanWriteContract({
           abi: erc20Abi,
           address: tokenAddress,
           functionName: "approve",
-          args: [contractAddress, amount],
+          args: [contractAddress, amount * BigInt(2)],
         });
         setIsApproved(true);
         toast({
@@ -109,9 +119,9 @@ export default function CleanForm() {
         });
       } else {
         await cleanWriteContract({
-          abi: abi,
+          abi: nftAbi,
           address: contractAddress,
-          functionName: "airdropTokens",
+          functionName: "cleanShitNFT",
           args: [],
         });
         toast({

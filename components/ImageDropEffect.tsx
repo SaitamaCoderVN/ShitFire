@@ -28,7 +28,7 @@ const ImageDropEffect = () => {
     };
   }, []);
 
-  const dropDuration = 2; // Thời gian rơi tính bằng giây
+  const dropDuration = 2;
 
   return (
     <>
