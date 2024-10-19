@@ -25,7 +25,7 @@ export const config = getDefaultConfig({
   ],
   chains: [klaytn, klaytnBaobab],
   transports: {
-    [klaytn.id]: http("https://public-en-cypress.klaytn.net"),
+    [klaytn.id]: http("https://public-en.node.kaia.io"),
     [klaytnBaobab.id]: http("https://public-en.kairos.node.kaia.io"),
   },
   ssr: true,

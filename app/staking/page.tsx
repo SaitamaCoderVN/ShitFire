@@ -84,7 +84,7 @@ const StakingPage: React.FC = () => {
     }
   }, [account.address, stakeAddress]);
 
-  const handleStake = async () => {
+  const handleApprove = async () => {
     const amount = parseFloat(stakeAmount);
     await writeContract({
       abi: erc20Abi,
@@ -92,6 +92,22 @@ const StakingPage: React.FC = () => {
       functionName: "approve",
       args: [stakeAddress, BigInt(amount) * BigInt(1e18)],
     });
+
+    // Cập nhật lại số lượng đã stake sau khi thực hiện unstaking
+    if (account.address) { // Check if addressFound is not empty
+      console.log(account.address);
+      const totalUserStaked = await readContract(config, {
+        abi: stakeAbi,
+        address: stakeAddress,
+        functionName: 'getStaked',
+        args: [account.address],
+      });
+      setStakedAmount(Number(totalUserStaked) / Math.pow(10, TOKEN_DECIMALS));
+    }
+  };
+
+  const handleStake = async () => {
+    const amount = parseFloat(stakeAmount);
     await writeContract({
       abi: stakeAbi,
       address: stakeAddress,
@@ -143,6 +159,18 @@ const StakingPage: React.FC = () => {
         <p className="text-xl mb-4">Hackers will not be able to stand it and will immediately return the money to the pool!</p>
         
         <div className="flex flex-col space-y-4 max-w-sm mx-auto">
+          <div className="flex items-center">
+            <input
+              type="number"
+              value={stakeAmount}
+              onChange={(e) => setStakeAmount(e.target.value)}
+              placeholder="Nhập số lượng để stake"
+              className="flex-grow p-2 border rounded"
+            />
+            <button onClick={handleApprove} className="ml-2 p-2 bg-blue-500 text-white rounded whitespace-nowrap">
+              Approve
+            </button>
+          </div>
           <div className="flex items-center">
             <input
               type="number"
