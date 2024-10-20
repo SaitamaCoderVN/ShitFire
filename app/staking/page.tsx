@@ -5,7 +5,7 @@ import Watting from '@/assets/quby-cute.gif';
 import styles from './staking.module.css';
 import { useAccount, useChainId, useWriteContract } from 'wagmi';
 import { nftAbi } from '@/components/nft-abi';
-import { BLOCK_EXPLORER_BAOBAB, BLOCK_EXPLORER_CYPRESS, CHAINID, CONTRACT_NFT_ADDRESS_BAOBAB, CONTRACT_NFT_ADDRESS_CYPRESS, CONTRACT_STAKE_ADDRESS_BAOBAB, CONTRACT_STAKE_ADDRESS_CYPRESS, TOKEN_ADDRESS_BAOBAB, TOKEN_ADDRESS_CYPRESS } from '@/components/contract';
+import { BLOCK_EXPLORER_BAOBAB, BLOCK_EXPLORER_CYPRESS, BLOCK_EXPLORER_MOONBEAM_ALPHA, CHAINID, CONTRACT_NFT_ADDRESS_BAOBAB, CONTRACT_NFT_ADDRESS_CYPRESS, CONTRACT_STAKE_ADDRESS_BAOBAB, CONTRACT_STAKE_ADDRESS_CYPRESS, CONTRACT_STAKE_ADDRESS_MOONBEAM_ALPHA, TOKEN_ADDRESS_BAOBAB, TOKEN_ADDRESS_CYPRESS, TOKEN_ADDRESS_MOONBEAM_ALPHA } from '@/components/contract';
 import { config } from '../config';
 import { stakeAbi } from '@/components/stake-abi';
 import { readContract } from '@wagmi/core';
@@ -37,6 +37,13 @@ const StakingPage: React.FC = () => {
       tokenAddress = TOKEN_ADDRESS_CYPRESS;
       blockexplorer = BLOCK_EXPLORER_CYPRESS;
       break;
+
+    case CHAINID.MOONBEAM_ALPHA:
+      stakeAddress = CONTRACT_STAKE_ADDRESS_MOONBEAM_ALPHA;
+      tokenAddress = TOKEN_ADDRESS_MOONBEAM_ALPHA;
+      blockexplorer = BLOCK_EXPLORER_MOONBEAM_ALPHA;
+      break;
+
     default:
       throw new Error("Network not supported");
   }

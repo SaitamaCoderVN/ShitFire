@@ -36,12 +36,17 @@ import {
   BLOCK_EXPLORER_BAOBAB,
   BLOCK_EXPLORER_CYPRESS,
   
+  BLOCK_EXPLORER_MOONBEAM_ALPHA,
+  
   CHAINID,
   CONTRACT_NFT_ADDRESS_BAOBAB,
   CONTRACT_NFT_ADDRESS_CYPRESS,
 
+  CONTRACT_NFT_ADDRESS_MOONBEAM_ALPHA,
+
   CONTRACT_STAKE_ADDRESS_BAOBAB,
-  CONTRACT_STAKE_ADDRESS_CYPRESS
+  CONTRACT_STAKE_ADDRESS_CYPRESS,
+  TOKEN_ADDRESS_MOONBEAM_ALPHA
 } from "../../components/contract";
 
 const formSchema = z.object({
@@ -68,6 +73,10 @@ export default function MintForm() {
       contractAddress = CONTRACT_NFT_ADDRESS_CYPRESS;
       break;
 
+    case CHAINID.MOONBEAM_ALPHA:
+      contractAddress = CONTRACT_NFT_ADDRESS_MOONBEAM_ALPHA;
+      break;
+
     default:
       throw new Error("Network not supported");
   }
@@ -79,6 +88,10 @@ export default function MintForm() {
 
     case CHAINID.CYPRESS:
       blockexplorer = BLOCK_EXPLORER_CYPRESS;
+      break;
+
+    case CHAINID.MOONBEAM_ALPHA:
+      blockexplorer = BLOCK_EXPLORER_MOONBEAM_ALPHA;
       break;
 
     default:

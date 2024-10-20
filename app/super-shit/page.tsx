@@ -4,7 +4,7 @@ import Watting from '@/assets/quby-cute.gif';
 import styles from './staking.module.css';
 import { nftAbi } from '@/components/nft-abi';
 import { useAccount, useChainId } from 'wagmi';
-import { BLOCK_EXPLORER_BAOBAB, BLOCK_EXPLORER_CYPRESS, CHAINID, CONTRACT_NFT_ADDRESS_BAOBAB, CONTRACT_NFT_ADDRESS_CYPRESS, TOKEN_ADDRESS_BAOBAB, TOKEN_ADDRESS_CYPRESS } from '@/components/contract';
+import { BLOCK_EXPLORER_BAOBAB, BLOCK_EXPLORER_CYPRESS, BLOCK_EXPLORER_MOONBEAM_ALPHA, CHAINID, CONTRACT_NFT_ADDRESS_BAOBAB, CONTRACT_NFT_ADDRESS_CYPRESS, CONTRACT_NFT_ADDRESS_MOONBEAM_ALPHA, TOKEN_ADDRESS_BAOBAB, TOKEN_ADDRESS_CYPRESS, TOKEN_ADDRESS_MOONBEAM_ALPHA } from '@/components/contract';
 import { config } from '../config';
 import { readContract } from '@wagmi/core';
 import { Avatar, colors, LeaderboardItem, LeaderboardList, LeaderboardScrollContainer, PlayerInfo, PlayerName, PlayerPoints, Rank } from './super-shit';
@@ -22,16 +22,25 @@ const SuperShit: React.FC = () => {
 
   // Determine contract and token addresses based on the chain ID
   switch (chainId) {
+
     case CHAINID.BAOBAB:
       contractAddress = CONTRACT_NFT_ADDRESS_BAOBAB;
       tokenAddress = TOKEN_ADDRESS_BAOBAB;
       blockexplorer = BLOCK_EXPLORER_BAOBAB;
       break;
+
     case CHAINID.CYPRESS:
       contractAddress = CONTRACT_NFT_ADDRESS_CYPRESS;
       tokenAddress = TOKEN_ADDRESS_CYPRESS;
       blockexplorer = BLOCK_EXPLORER_CYPRESS;
       break;
+
+    case CHAINID.MOONBEAM_ALPHA:
+      contractAddress = CONTRACT_NFT_ADDRESS_MOONBEAM_ALPHA;
+      tokenAddress = TOKEN_ADDRESS_MOONBEAM_ALPHA;
+      blockexplorer = BLOCK_EXPLORER_MOONBEAM_ALPHA;
+      break;
+
     default:
       throw new Error("Network not supported");
   }

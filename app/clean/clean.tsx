@@ -39,6 +39,9 @@ import {
   
   BLOCK_EXPLORER_BAOBAB,
   BLOCK_EXPLORER_CYPRESS,
+  CONTRACT_NFT_ADDRESS_MOONBEAM_ALPHA,
+  TOKEN_ADDRESS_MOONBEAM_ALPHA,
+  BLOCK_EXPLORER_MOONBEAM_ALPHA,
   
 } from "../../components/contract";
 import cleanImage from "@/assets/shit.gif";
@@ -66,6 +69,13 @@ export default function CleanForm() {
       tokenAddress = TOKEN_ADDRESS_CYPRESS;
       blockexplorer = BLOCK_EXPLORER_CYPRESS;
       break;
+
+    case CHAINID.MOONBEAM_ALPHA:
+      contractAddress = CONTRACT_NFT_ADDRESS_MOONBEAM_ALPHA;
+      tokenAddress = TOKEN_ADDRESS_MOONBEAM_ALPHA;
+      blockexplorer = BLOCK_EXPLORER_MOONBEAM_ALPHA;
+      break;
+
     default:
       throw new Error("Network not supported");
   }
